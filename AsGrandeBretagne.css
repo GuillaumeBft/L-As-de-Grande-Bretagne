@@ -1,0 +1,20 @@
+.cartes {
+    height: 180px;
+    width: 124px;
+}
+
+.player, #board_game {
+    text-align: center;
+}
+
+.gathered_cards, .continue_check, .sips {
+    padding-top: 40px;
+}
+
+.bootstrap-select {
+    padding-top: 30px;
+}
+
+input[type='checkbox'] {
+    zoom: 1.5;
+}
