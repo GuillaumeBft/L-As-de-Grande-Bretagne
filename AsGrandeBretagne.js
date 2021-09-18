@@ -1,6 +1,6 @@
 $(document).ready(function () {
     onBoardCards = [];
-    allCards = [new Carte("As_de_coeur"), new Carte("Deux_de_pique"), new Carte("Trois_de_pique"), new Carte("Quatre_de_pique"), 
+    allCards = [new Carte("As_de_pique"), new Carte("Deux_de_pique"), new Carte("Trois_de_pique"), new Carte("Quatre_de_pique"), 
                 new Carte("Cinq_de_pique"), new Carte("Six_de_pique"), new Carte("Sept_de_pique"), new Carte("Huit_de_pique"), 
                 new Carte("Neuf_de_pique"), new Carte("Dix_de_pique"), new Carte("Vallet_de_pique"), new Carte("Dame_de_pique"), 
                 new Carte("Roi_de_pique"), 
@@ -44,6 +44,7 @@ $(document).ready(function () {
             roundEnd();
             roundOver = true;
             disableCheckbox();
+            disableStopButton();
         } else if (cardsSelected) {
             //Another line revealed
             if (ligne > 1) {
@@ -51,6 +52,7 @@ $(document).ready(function () {
             } 
             if (ligne == 1) {
                 enableCheckbox();
+                enableStopButton();
             }
             $(".selectpicker").each(function () {
                 $(this).prop('disabled', true);
@@ -66,6 +68,11 @@ $(document).ready(function () {
         } else {
             alert("Une carte n'a pas été selectionnée");
         }
+    });
+
+    $("#stop").click(function () {
+        getCheckBoxesUnchecked();
+        $("#throw").click();
     });
 
     //Init
@@ -87,7 +94,22 @@ $(document).ready(function () {
     $(".selectpicker").toArray().forEach(selectpicker => {
         $(selectpicker).append('<option value="null">Pas sélectionné</option>');
         availableCards.forEach(card => {
-            $(selectpicker).append('<option value=' + card.name + '>' + card.prettyName + '</option>');
+            switch (card.sign) {
+                case "coeur":
+                    $(selectpicker).children().eq(0).append('<option value=' + card.name + '>' + card.prettyName + '</option>');
+                    break;
+                case "carreau":
+                    $(selectpicker).children().eq(1).append('<option value=' + card.name + '>' + card.prettyName + '</option>');
+                    break;
+                case "pique":
+                    $(selectpicker).children().eq(2).append('<option value=' + card.name + '>' + card.prettyName + '</option>');
+                    break;
+                case "trefle":
+                    $(selectpicker).children().eq(3).append('<option value=' + card.name + '>' + card.prettyName + '</option>');
+                    break;
+                default:
+                    break;
+            }
         });
         $(selectpicker).selectpicker("refresh");
     });
@@ -111,13 +133,15 @@ $(document).ready(function () {
                 if (card.value == player.selectedCard.value && card.linePos <= (player.lineBetCopy + 1)) {
                     player.cards.push(card);
                     onBoardCards.splice(onBoardCards.indexOf(card), 1);
-                    $("img[src='" + card.path + "']").first().attr("src", "Cartes/dos_de_carte.jpg");
+                    //$("img[src='" + card.path + "']").first().attr("src", "Cartes/dos_de_carte.jpg");
+                    $("img[src='" + card.path + "']").first().addClass("darken");
                     $("#p"+player.number+"_cards_number").text(player.cards.length);
                     assignSips(card, player);
                     console.log(player.name + " receives " + card.name);
                 }
             });
         });
+        updateSipsFront();
         player1.lineBet = 0;
         player2.lineBet = 0;
         availableCards = availableCards.concat(onBoardCards);
@@ -126,6 +150,7 @@ $(document).ready(function () {
     function resetBoard() {
         $(".cartes").each(function () {
             $(this).attr("src", "Cartes/dos_de_carte.jpg");
+            $(this).removeClass("darken");
         });
     }
 
@@ -157,6 +182,12 @@ $(document).ready(function () {
         });
     }
 
+    function getCheckBoxesUnchecked() {
+        $("input[type='checkbox']").each(function () {
+            $(this).get()[0].checked = false;
+        });
+    }
+
     function assignSips(onBoardCard, playerToGive) {
         playerCard = playerToGive.selectedCard;
         playerToTake = players[2 - playerToGive.number];
@@ -169,9 +200,11 @@ $(document).ready(function () {
 
         occ = occurenceByValue[onBoardCard.value];
         if (occ == 3) {
-            playerToTake.assDry++;
+            playerToTake.assDry + 2;
+            playerToGive.sips++;
+            playerToTake.sips++;
         } else if (occ == 2) {
-            sips *= 4; 
+            playerToTake.assDry++; 
         } else if (occ == 1) {
             sips *= 2;
         }
@@ -181,7 +214,6 @@ $(document).ready(function () {
         }
         onBoardCard.position == 3 ? playerToGive.sips += sips : playerToTake.sips += sips;
         occurenceByValue[onBoardCard.value]++;
-        updateSipsFront();
         console.log(onBoardCard.name + " ; pos " + onBoardCard.position + " line " + onBoardCard.linePos + "; sips = " + sips);
     }
 
@@ -199,7 +231,6 @@ $(document).ready(function () {
             }
             player.sips += player.lineBet * 8;
         });
-        updateSipsFront();
     }
 
     function resetOccurrenceArray() {
@@ -208,6 +239,9 @@ $(document).ready(function () {
 
     function updateSipsFront() {
         players.forEach(player => {
+            $("#p"+player.number+"_added_sips").text("(+" + (player.sips - parseInt($("#p"+player.number+"_sips_number").text())) + ")");
+            $("#p"+player.number+"_added_ass_dry").text("(+" + (player.assDry - parseInt($("#p"+player.number+"_ass_dry_number").text())) + ")");
+
             $("#p"+player.number+"_sips_number").text(player.sips);
             $("#p"+player.number+"_ass_dry_number").text(player.assDry);
         });
@@ -220,5 +254,13 @@ $(document).ready(function () {
                 console.log("Line bet for player " + player.number + " : + 8 sips")
             }
         });
+    }
+
+    function disableStopButton() {
+        $("#stop").attr("disabled", true);
+    }
+
+    function enableStopButton() {
+        $("#stop").removeAttr("disabled");
     }
 });

@@ -6,6 +6,7 @@ class Player {
     assDry = 0;
     lineBet = 0;
     lineBetCopy = 0;
+    
     constructor(name, number) {
         this.name = name;
         this.number = number;

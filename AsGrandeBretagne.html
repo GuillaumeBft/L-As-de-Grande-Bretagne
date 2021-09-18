@@ -19,18 +19,29 @@
 			<div class="col-3 player">
 				<h3 id="p1_name"></h3>
 				<select id="p1_select" class="selectpicker" data-live-search="true">
+					<optgroup label="Coeur ♥">
+					</optgroup>
+					<optgroup label="Carreau ♦">
+					</optgroup>
+					<optgroup label="Pique ♠">
+					</optgroup>
+					<optgroup label="Trèfle ♣">
+					</optgroup>
 				</select>
 				<div class="continue_check"> Continuer ?
 					<input type="checkbox" id="p1_continue" disabled checked>
 				</div>
 				<div class="gathered_cards">Cartes récupérées : 
 					<span id="p1_cards_number">0</span>
+					<span class="added" id="p1_added_cards"></span>
 				</div>
 				<div class="sips">Gorgées prises : 
 					<span id="p1_sips_number">0</span>
+					<span class="added" id="p1_added_sips"></span>
 				</div>
 				<div class="ass_dry">Culs secs : 
 					<span id="p1_ass_dry_number">0</span>
+					<span class="added" id="p1_added_ass_dry"></span>
 				</div>
 			</div>
 			<div id="board_game" class="col-6">
@@ -55,23 +66,36 @@
 					<img id="c14" class="cartes" src="Cartes/dos_de_carte.jpg" alt="">
 					<img id="c15" class="cartes" src="Cartes/dos_de_carte.jpg" alt="">
 				</div>
-				<input id="throw" type="submit" name="Lancer" value="Lancer"/>
+				<!--input id="throw" type="submit" name="Lancer" value="Lancer"/-->
+				<button id="throw" type="button" class="btn btn-primary">Lancer</button>
+				<button id="stop" type="button" class="btn btn-secondary" disabled>Stopper le tour</button>
 			</div>
 			<div class="col-3 player">
 			  	<h3 id="p2_name"></h3>
 			  	<select id="p2_select" class="selectpicker" data-live-search="true">
+					<optgroup label="Coeur ♥">
+					</optgroup>
+					<optgroup label="Carreau ♦">
+					</optgroup>
+					<optgroup label="Pique ♠">
+					</optgroup>
+					<optgroup label="Trèfle ♣">
+					</optgroup>
 				</select>
 				<div class="continue_check"> Continuer ?
 					<input type="checkbox" id="p2_continue" disabled checked>
 				</div>
 				<div class="gathered_cards">Cartes récupérées : 
 					<span id="p2_cards_number">0</span>
+					<span class="added" id="p2_added_cards"></span>
 				</div>
 				<div class="sips">Gorgées prises : 
 					<span id="p2_sips_number">0</span>
+					<span class="added" id="p2_added_sips"></span>
 				</div>
 				<div class="ass_dry">Culs secs : 
 					<span id="p2_ass_dry_number">0</span>
+					<span class="added" id="p2_added_ass_dry"></span>
 				</div>	
 		  </div>
 	  </div>

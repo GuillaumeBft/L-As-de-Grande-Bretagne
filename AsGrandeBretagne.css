@@ -7,6 +7,19 @@
     text-align: center;
 }
 
+#throw {
+    margin-top: 20px;
+}
+
+#stop {
+    margin-top: 20px;
+    margin-left: 30px;
+}
+
+.darken {
+    filter: brightness(50%);
+}
+
 .gathered_cards, .continue_check, .sips, .ass_dry {
     padding-top: 40px;
 }
@@ -17,4 +30,8 @@
 
 input[type='checkbox'] {
     zoom: 1.5;
+}
+
+.added {
+    color: blue;
 }

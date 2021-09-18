@@ -2,6 +2,7 @@ class Carte {
     path = "";
     position = -1;
     linePos = -1;
+    
     constructor(name) {
         this.name = name;
         this.path = "Cartes/" + name + ".jpg";
