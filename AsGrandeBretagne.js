@@ -1,5 +1,6 @@
 $(document).ready(function () {
     onBoardCards = [];
+    logs = [];
     allCards = [new Carte("As_de_pique"), new Carte("Deux_de_pique"), new Carte("Trois_de_pique"), new Carte("Quatre_de_pique"), 
                 new Carte("Cinq_de_pique"), new Carte("Six_de_pique"), new Carte("Sept_de_pique"), new Carte("Huit_de_pique"), 
                 new Carte("Neuf_de_pique"), new Carte("Dix_de_pique"), new Carte("Vallet_de_pique"), new Carte("Dame_de_pique"), 
@@ -128,11 +129,13 @@ $(document).ready(function () {
             card.position = onBoardCards.indexOf(card) % 5;
             card.linePos = Math.floor(onBoardCards.indexOf(card) / 5) + 1;
         });
+        onBoardCardsTmp = onBoardCards.slice();
         onBoardCards.forEach(card => {
             players.forEach(player => {
+                log("P" + player.number + " test : " + card.prettyName + " == " + player.selectedCard.prettyName + " && " + card.linePos + " <= " + (player.lineBetCopy + 1))
                 if (card.value == player.selectedCard.value && card.linePos <= (player.lineBetCopy + 1)) {
                     player.cards.push(card);
-                    onBoardCards.splice(onBoardCards.indexOf(card), 1);
+                    onBoardCardsTmp.splice(onBoardCardsTmp.indexOf(card), 1);
                     //$("img[src='" + card.path + "']").first().attr("src", "Cartes/dos_de_carte.jpg");
                     $("img[src='" + card.path + "']").first().addClass("darken");
                     $("#p"+player.number+"_cards_number").text(player.cards.length);
@@ -141,6 +144,7 @@ $(document).ready(function () {
                 }
             });
         });
+        onBoardCards = onBoardCardsTmp.slice();
         updateSipsFront();
         player1.lineBet = 0;
         player2.lineBet = 0;
@@ -262,5 +266,11 @@ $(document).ready(function () {
 
     function enableStopButton() {
         $("#stop").removeAttr("disabled");
+    }
+
+    function log(str) {
+        now = new Date(Date.now());
+        logs.push(str + "  at " + now.getHours() + ":" + now.getSeconds() + ":" + now.getMilliseconds());
+        //logs.push(str + Date.now());
     }
 });
