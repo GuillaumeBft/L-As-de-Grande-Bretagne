@@ -12,6 +12,10 @@ class Carte {
         this.sign = name.split("_")[2];
         this.color = (this.sign == "pique" || this.sign == "trefle") ? "Noir" : "Rouge";
     }
+
+    static allValues() {
+        return ["As", "Deux", "Trois", "Quatre", "Cinq", "Six", "Sept", "Huit", "Neuf", "Dix", "Vallet", "Dame", "Roi"];
+    }
 }
 
 function testCardFileExists(path) {

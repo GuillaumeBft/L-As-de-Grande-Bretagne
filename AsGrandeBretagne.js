@@ -17,9 +17,35 @@ $(document).ready(function () {
                 new Carte("Cinq_de_carreau"), new Carte("Six_de_carreau"), new Carte("Sept_de_carreau"), new Carte("Huit_de_carreau"), 
                 new Carte("Neuf_de_carreau"), new Carte("Dix_de_carreau"), new Carte("Vallet_de_carreau"), new Carte("Dame_de_carreau"), 
                 new Carte("Roi_de_carreau")];
+
+    allCards = [new Carte("As_de_pique"), new Carte("Deux_de_pique"), new Carte("Trois_de_pique"), new Carte("Quatre_de_pique"), new Carte("Cinq_de_pique"), new Carte("Six_de_pique")];
     
     occurenceByValue = { "As": 0, "Deux": 0, "Trois": 0, "Quatre": 0, "Cinq": 0, "Six": 0, "Sept": 0, "Huit": 0, "Neuf": 0, "Dix": 0, "Vallet": 0, "Dame": 0, "Roi": 0};
-    
+
+    initialization();
+
+    $(".selectpicker").toArray().forEach(selectpicker => {
+        $(selectpicker).append('<option value="null">Pas sélectionné</option>');
+        availableCards.forEach(card => {
+            switch (card.sign) {
+                case "coeur":
+                    $(selectpicker).children().eq(0).append('<option value=' + card.name + '>' + card.prettyName + '</option>');
+                    break;
+                case "carreau":
+                    $(selectpicker).children().eq(1).append('<option value=' + card.name + '>' + card.prettyName + '</option>');
+                    break;
+                case "pique":
+                    $(selectpicker).children().eq(2).append('<option value=' + card.name + '>' + card.prettyName + '</option>');
+                    break;
+                case "trefle":
+                    $(selectpicker).children().eq(3).append('<option value=' + card.name + '>' + card.prettyName + '</option>');
+                    break;
+                default:
+                    break;
+            }
+        });
+        $(selectpicker).selectpicker("refresh");
+    });
 
     $("#throw").click(function () {
         cardsSelected = true;
@@ -30,22 +56,18 @@ $(document).ready(function () {
         });
         verifyCheckboxes();
         roundStopped = player1.stopAtLine < ligne && player2.stopAtLine < ligne;
+        isGameOver = availableCards.length < 6;
 
-        if (roundOver) {
+        if (isGameOver) {
+            //Game over, scores displayed
+            roundEnd();
+            gameOver();
+        } else if (roundOver) {
             //Reset after round over
-            ligne = 1;
-            roundOver = false;
-            onBoardCards = [];
-            player1.stopAtLine = 3;
-            player2.stopAtLine = 3;
-            resetBoard();
-            getCheckBoxesChecked()
+            newRound()
         } else if (roundStopped || ligne > 3) {
             //Round over, players get their cards
             roundEnd();
-            roundOver = true;
-            disableCheckbox();
-            disableStopButton();
         } else if (cardsSelected) {
             //Another line revealed
             if (ligne > 1) {
@@ -75,15 +97,6 @@ $(document).ready(function () {
         getCheckBoxesUnchecked();
         $("#throw").click();
     });
-
-    //Init
-    player1 = new Player("P1", 1);
-    player2 = new Player("P2", 2);
-    players = [player1, player2];
-    ligne = 1;
-    roundOver = false;
-    roundStopped = false;
-    availableCards = allCards.slice();
     
     $("#p1_select").on('changed.bs.select', function () {
         player1.selectedCard = new Carte($("#p1_select").selectpicker("val"));
@@ -92,27 +105,15 @@ $(document).ready(function () {
         player2.selectedCard = new Carte($("#p2_select").selectpicker("val"));
     });
 
-    $(".selectpicker").toArray().forEach(selectpicker => {
-        $(selectpicker).append('<option value="null">Pas sélectionné</option>');
-        availableCards.forEach(card => {
-            switch (card.sign) {
-                case "coeur":
-                    $(selectpicker).children().eq(0).append('<option value=' + card.name + '>' + card.prettyName + '</option>');
-                    break;
-                case "carreau":
-                    $(selectpicker).children().eq(1).append('<option value=' + card.name + '>' + card.prettyName + '</option>');
-                    break;
-                case "pique":
-                    $(selectpicker).children().eq(2).append('<option value=' + card.name + '>' + card.prettyName + '</option>');
-                    break;
-                case "trefle":
-                    $(selectpicker).children().eq(3).append('<option value=' + card.name + '>' + card.prettyName + '</option>');
-                    break;
-                default:
-                    break;
+    $(".btn-success").click(function () {
+        console.log(isGameOver);
+        if (!isGameOver) {
+            if (confirm("La partie actuelle n'est pas terminée, voulez-vous vraiment commencer une nouvelle partie ?")) {
+                newGame();
             }
-        });
-        $(selectpicker).selectpicker("refresh");
+        } else {
+            newGame();
+        }
     });
       
 
@@ -132,15 +133,14 @@ $(document).ready(function () {
         onBoardCardsTmp = onBoardCards.slice();
         onBoardCards.forEach(card => {
             players.forEach(player => {
-                log("P" + player.number + " test : " + card.prettyName + " == " + player.selectedCard.prettyName + " && " + card.linePos + " <= " + (player.lineBetCopy + 1))
+                //log("P" + player.number + " test : " + card.prettyName + " == " + player.selectedCard.prettyName + " && " + card.linePos + " <= " + (player.lineBetCopy + 1))
                 if (card.value == player.selectedCard.value && card.linePos <= (player.lineBetCopy + 1)) {
                     player.cards.push(card);
                     onBoardCardsTmp.splice(onBoardCardsTmp.indexOf(card), 1);
-                    //$("img[src='" + card.path + "']").first().attr("src", "Cartes/dos_de_carte.jpg");
                     $("img[src='" + card.path + "']").first().addClass("darken");
                     $("#p"+player.number+"_cards_number").text(player.cards.length);
                     assignSips(card, player);
-                    console.log(player.name + " receives " + card.name);
+                    log(player.name + " receives " + card.name);
                 }
             });
         });
@@ -149,6 +149,9 @@ $(document).ready(function () {
         player1.lineBet = 0;
         player2.lineBet = 0;
         availableCards = availableCards.concat(onBoardCards);
+        roundOver = true;
+        disableCheckbox();
+        disableStopButton();
     }
 
     function resetBoard() {
@@ -218,7 +221,7 @@ $(document).ready(function () {
         }
         onBoardCard.position == 3 ? playerToGive.sips += sips : playerToTake.sips += sips;
         occurenceByValue[onBoardCard.value]++;
-        console.log(onBoardCard.name + " ; pos " + onBoardCard.position + " line " + onBoardCard.linePos + "; sips = " + sips);
+        log(onBoardCard.name + " ; pos " + onBoardCard.position + " line " + onBoardCard.linePos + "; sips = " + sips);
     }
 
     function addSipsForLineBet() {
@@ -228,7 +231,7 @@ $(document).ready(function () {
                 for(j = i*5; j < i*5+5; j++) {
                     if (onBoardCards[j].value == player.selectedCard.value) {
                         player.lineBet--;
-                        console.log("Find card in line " + i + " for player " + player.number + " : - 8 sips");
+                        log("Find card in line " + i + " for player " + player.number + " : - 8 sips");
                         break;
                     }
                 }
@@ -255,9 +258,66 @@ $(document).ready(function () {
         players.forEach(player => {
             if ($("#p"+player.number+"_continue").get()[0].checked) {
                 player.lineBet++;
-                console.log("Line bet for player " + player.number + " : + 8 sips")
+                log("Line bet for player " + player.number + " : + 8 sips")
             }
         });
+    }
+
+    function resetSelects() {
+        $(".selectpicker").each(function () {
+            $(this).selectpicker('deselectAll');
+            $(this).selectpicker('refresh');
+        });
+    }
+
+    function initialization() {
+        player1 = new Player("P1", 1);
+        player2 = new Player("P2", 2);
+        players = [player1, player2];
+        ligne = 1;
+        roundOver = false;
+        roundStopped = false;
+        availableCards = allCards.slice();
+    }
+
+    function newRound() {
+        ligne = 1;
+        roundOver = false;
+        onBoardCards = [];
+        player1.stopAtLine = 3;
+        player2.stopAtLine = 3;
+        resetBoard();
+        getCheckBoxesChecked()
+    }
+
+    function gameOver() {
+        players.forEach(player => {
+            score = player.cards.length;
+            Carte.allValues().forEach(value => {
+                occurrence = 0
+                player.cards.forEach(card => {
+                    if (card.value == value) {
+                        occurrence++;
+                    }
+                });
+                if (occurrence == 4) {
+                    score += 2;
+                }
+            });
+
+            $("#p"+player.number+"_score").text(score);
+        });
+        $(".score").show();
+    }
+
+    function newGame() {
+        initialization();
+        newRound();
+        $(".score").hide();
+        isGameOver = false;
+        disableCheckbox();
+        disableStopButton();
+        resetSelects();//TODO
     }
 
     function disableStopButton() {
@@ -271,6 +331,5 @@ $(document).ready(function () {
     function log(str) {
         now = new Date(Date.now());
         logs.push(str + "  at " + now.getHours() + ":" + now.getSeconds() + ":" + now.getMilliseconds());
-        //logs.push(str + Date.now());
     }
 });
