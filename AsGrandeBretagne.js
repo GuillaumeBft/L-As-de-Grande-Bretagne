@@ -18,7 +18,7 @@ $(document).ready(function () {
                 new Carte("Neuf_de_carreau"), new Carte("Dix_de_carreau"), new Carte("Vallet_de_carreau"), new Carte("Dame_de_carreau"), 
                 new Carte("Roi_de_carreau")];
 
-    allCards = [new Carte("As_de_pique"), new Carte("Deux_de_pique"), new Carte("Trois_de_pique"), new Carte("Quatre_de_pique"), new Carte("Cinq_de_pique"), new Carte("Six_de_pique")];
+    //allCards = [new Carte("As_de_pique"), new Carte("Deux_de_pique"), new Carte("Trois_de_pique"), new Carte("Quatre_de_pique"), new Carte("Cinq_de_pique"), new Carte("Six_de_pique")];
     
     occurenceByValue = { "As": 0, "Deux": 0, "Trois": 0, "Quatre": 0, "Cinq": 0, "Six": 0, "Sept": 0, "Huit": 0, "Neuf": 0, "Dix": 0, "Vallet": 0, "Dame": 0, "Roi": 0};
 
@@ -58,10 +58,16 @@ $(document).ready(function () {
         roundStopped = player1.stopAtLine < ligne && player2.stopAtLine < ligne;
         isGameOver = availableCards.length < 6;
 
+        if (allOver) {
+            alert("Partie terminée !");
+            return;
+        }
+
         if (isGameOver) {
             //Game over, scores displayed
             roundEnd();
             gameOver();
+            allOver = true;
         } else if (roundOver) {
             //Reset after round over
             newRound()
@@ -105,7 +111,7 @@ $(document).ready(function () {
         player2.selectedCard = new Carte($("#p2_select").selectpicker("val"));
     });
 
-    $(".btn-success").click(function () {
+    $("#new").click(function () {
         console.log(isGameOver);
         if (!isGameOver) {
             if (confirm("La partie actuelle n'est pas terminée, voulez-vous vraiment commencer une nouvelle partie ?")) {
@@ -263,13 +269,6 @@ $(document).ready(function () {
         });
     }
 
-    function resetSelects() {
-        $(".selectpicker").each(function () {
-            $(this).selectpicker('deselectAll');
-            $(this).selectpicker('refresh');
-        });
-    }
-
     function initialization() {
         player1 = new Player("P1", 1);
         player2 = new Player("P2", 2);
@@ -277,6 +276,7 @@ $(document).ready(function () {
         ligne = 1;
         roundOver = false;
         roundStopped = false;
+        allOver = false;
         availableCards = allCards.slice();
     }
 
@@ -311,13 +311,7 @@ $(document).ready(function () {
     }
 
     function newGame() {
-        initialization();
-        newRound();
-        $(".score").hide();
-        isGameOver = false;
-        disableCheckbox();
-        disableStopButton();
-        resetSelects();//TODO
+        location.reload();
     }
 
     function disableStopButton() {
